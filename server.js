@@ -1,10 +1,14 @@
 import fs from 'node:fs/promises'
+import { dirname } from "node:path";
 import Fastify from "fastify";
+import {fileURLToPath} from "node:url";
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production'
 const port = process.env.PORT || 5173
-const base = process.env.BASE || '/'
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const base = __dirname
 
 // Cached production assets
 const templateHtml = isProduction
@@ -29,7 +33,7 @@ async function buildServer() {
         await createServer({
           server: { middlewareMode: true },
           appType: 'custom',
-          base
+          root: base
         })
     );
     const viteDevMiddleware = vite.middlewares;
@@ -48,13 +52,13 @@ async function buildServer() {
 
     await app.register(import('@fastify/compress'), { global: true })
     await app.register(import('@fastify/static'), {
-      root: `${base}/dist/client`,
-      prefix: "/assets/",
+      root: `${base}/dist/client/`,
+      prefix: "/",
     });
   }
 
 // Serve HTML
-  app.get('*', async (req, reply) => {
+  app.get('/', async (req, reply) => {
     try {
       const url = req.raw.url.replace(base, '')
 
