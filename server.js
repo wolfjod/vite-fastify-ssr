@@ -2,6 +2,7 @@ import fs from 'node:fs/promises'
 import { dirname } from "node:path";
 import Fastify from "fastify";
 import {fileURLToPath} from "node:url";
+import {createViteRuntime} from "vite";
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production'
@@ -68,7 +69,8 @@ async function buildServer() {
         // Always read fresh template in development
         template = await fs.readFile('./index.html', 'utf-8')
         template = await vite.transformIndexHtml(url, template)
-        render = (await vite.ssrLoadModule('/src/entry-server.tsx')).render
+        const runtime = await createViteRuntime(vite)
+        render = (await runtime.executeEntrypoint('/src/entry-server.tsx')).render
       } else {
         template = templateHtml
         render = (await import('./dist/server/entry-server.js')).render
@@ -83,7 +85,7 @@ async function buildServer() {
       reply.code(200).headers({ 'Content-Type': 'text/html;charset=utf-8', 'Cache-Control':'no-store, max-age=0' }).send(html)
     } catch (e) {
       vite?.ssrFixStacktrace(e)
-      res.status(500).end(e.stack)
+      reply.code(500).send(e.stack)
     }
   })
   return app;
