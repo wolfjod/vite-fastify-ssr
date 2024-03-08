@@ -8,7 +8,12 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --ssrManifest --outDir dist/client",
     "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
-    "preview": "cross-env NODE_ENV=production node server"
+    "preview": "cross-env NODE_ENV=production node server",
+    "fix": "biome check --apply ./src",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm fix"
   },
   "dependencies": {
     "@fastify/compress": "^7.0.0",
@@ -24,6 +29,8 @@
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react-swc": "^3.6.0",
     "cross-env": "^7.0.3",
+    "lint-staged": "^15.2.2",
+    "simple-git-hooks": "^2.10.0",
     "typescript": "^5.4.2",
     "vite": "^5.1.5"
   }

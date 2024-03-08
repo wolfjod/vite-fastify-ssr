@@ -49,7 +49,9 @@ async function buildServer() {
     // In production, we need to serve our static assets ourselves.
     // (In dev, Vite's middleware serves our static assets.)
 
+    /* [TODO] Move this to Nginx */
     await app.register(import('@fastify/compress'))
+
     await app.register(import('@fastify/static'), {
       root: `${base}/dist/client/`,
       prefix: '/',
